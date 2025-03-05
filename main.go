@@ -3,10 +3,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
-
+//struct for task
 type Task struct {
 	ID   int    `json:"id"`
 	Task string `json:"task"`
@@ -22,7 +21,7 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.File("./static/index.html")
 	})
-
+	//CRUD
 	r.POST("/addTask", addTask)
 	r.GET("/getTasks", getTasks)
 	r.PUT("/updateTask", updateTask)
@@ -30,12 +29,12 @@ func main() {
 
 	r.Run(":8080")
 }
-
+//add new task
 func addTask(c *gin.Context) {
 	var newTask Task
 	err := json.NewDecoder(c.Request.Body).Decode(&newTask)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid input!"})
 		return
 	}
 
@@ -47,13 +46,13 @@ func addTask(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, newTask)
 }
-
+//get the task
 func getTasks(c *gin.Context) {
 	mu.Lock()
 	defer mu.Unlock()
 	c.JSON(http.StatusOK, tasks)
 }
-
+//update task
 func updateTask(c *gin.Context) {
 	var updatedTask Task
 	err := json.NewDecoder(c.Request.Body).Decode(&updatedTask)
@@ -75,7 +74,7 @@ func updateTask(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, gin.H{"Error": "Task not found!"})
 }
-
+//del task
 func deleteTask(c *gin.Context) {
 	id := c.Param("id")
 	mu.Lock()
@@ -88,6 +87,6 @@ func deleteTask(c *gin.Context) {
 			return
 		}
 	}
-
+	//error msg
 	c.JSON(http.StatusNotFound, gin.H{"Error": "Task not found!"})
 }
